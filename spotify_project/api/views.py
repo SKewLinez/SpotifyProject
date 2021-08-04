@@ -1,6 +1,9 @@
+from .models import Party
 from django.shortcuts import render
-from django.http import HttpResponse
+from rest_framework import generics
+from .serialisers import PartySerialiser
 
 # Create your views here. - endpoints
-def main(request):
-    return HttpResponse("<h1>Hello</h1>")
+class PartyView(generics.ListAPIView):
+    queryset = Party.objects.all()
+    serializer_class = PartySerialiser
