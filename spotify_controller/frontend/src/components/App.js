@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 import HomePage from "./HomePage";
 import PartyJoinPage from "./PartyJoinPage";
-import CreatPartyPage from "./CreatePartyPage";
+import CreatePartyPage from "./CreatePartyPage";
 
 export default class App extends Component {
     constructor(props) {
@@ -16,7 +16,7 @@ export default class App extends Component {
         return (<div>
             <HomePage />
             {/* <PartyJoinPage />
-            <CreatPartyPage /> */}
+            <CreatePartyPage /> */}
             </div>);
     }
 }
