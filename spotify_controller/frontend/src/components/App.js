@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 import HomePage from "./HomePage";
 import PartyJoinPage from "./PartyJoinPage";
-import CreatPartyPage from "./CreatPartyPage";
+import CreatPartyPage from "./CreatePartyPage";
 
 export default class App extends Component {
     constructor(props) {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PartyJoinPage from "./PartyJoinPage";
-import CreatPartyPage from "./CreatPartyPage";
+import CreatPartyPage from "./CreatePartyPage";
 import {
   BrowserRouter as Router,
   Switch,
@@ -18,7 +18,7 @@ export default class HomePage extends Component {
             <Switch>
                 <Route exact path='/'><p>This is the home page.</p></Route>
                 <Route path='/join' component={PartyJoinPage}></Route>
-                <Route path='/create' component={CreatPartyPage}></Route>
+                <Route path='/create' component={CreatePartyPage}></Route>
                 {/* <Route path='/'><p>Hey this is the home page.</p></Route> */}
             </Switch>
         </Router>
