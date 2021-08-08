@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Grid,
@@ -12,10 +13,58 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
+function CreatePartyPage(props) {
+  // TODO
+}
+
+
 export default class CreatePartyPage extends Component {
+  defaultVotes = 2;
+
   constructor(props) {
     super(props);
+    this.state = {
+      guestCanPause: true,
+      votesToSkip: this.defaultVotes,
+    };
+
+    this.handleVotesChange = this.handleVotesChange.bind(this);
+    this.handleGuestCanPauseChange = this.handleGuestCanPauseChange.bind(this);
+    this.handlePartyButtonPressed = this.handlePartyButtonPressed.bind(this);
   }
+
+  handleVotesChange(e) {
+    this.setState({
+      votesToSkip: e.target.value}, () => 
+      console.log(this.state.votesToSkip)
+    );
+    // this.setState({
+    //   votesToSkip: e.target.value,
+    // });
+  }
+
+  handleGuestCanPauseChange(e) {
+    this.setState({
+      guestCanPause: e.target.value === true ? true : false,
+    });
+  }
+
+  handlePartyButtonPressed() {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // votes_to_skip: this.state.votesToSkip,
+       
+        guest_can_pause: this.state.guestCanPause,
+        votes_to_skip: this.state.votesToSkip, // BUG: do not update
+      }),
+    };
+    fetch("/api/create-party", requestOptions)
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }
+
   render() {
     return (
       <Grid container spacing={1}>
@@ -70,7 +119,7 @@ export default class CreatePartyPage extends Component {
           <Button
             color="primary"
             variant="contained"
-            onClick={this.handleRoomButtonPressed}
+            onClick={this.handlePartyButtonPressed}
           >
             Create a Party
           </Button>
