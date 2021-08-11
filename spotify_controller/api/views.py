@@ -1,5 +1,6 @@
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import subclasses
+from rest_framework import serializers
 from rest_framework.serializers import Serializer
 from .models import Party
 from django.shortcuts import render
@@ -13,11 +14,26 @@ class PartyView(generics.ListAPIView):
     queryset = Party.objects.all()
     serializer_class = PartySerialiser
 
-   # def delete(self, request, *args, **kwargs):
-        
+   # def delete(self, request, *args, **kwargs):     
         # queryset.delete()
         # return Response("Question deleted", status=status.HTTP_204_NO_CONTENT)
     # Party.objects.filter(id=0).delete()
+
+class GetParty(APIView):
+    serializer_class = PartySerialiser
+    lookup_url_kwarg = 'code'
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            party = Party.objects.filter(code=code)
+            if len(party) > 0:
+                data = PartySerialiser(party[0]).data
+                data['is_host'] = self.request.session.session_key == party[0].host
+                return Response(data, status=status.HTTP_200_OK)
+            return Response({'Party Not Found': 'Invalid Party Code.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Code parameters not found in request.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CreatePartyView(APIView):
     serializer_class = CreatePartySerialiser
