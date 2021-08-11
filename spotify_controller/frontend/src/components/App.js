@@ -21,7 +21,7 @@ import CreatePartyPage from "./CreatePartyPage";
 //             </div>);
 //     }
 // }
-export default function App() {
+export const App = (props) => {
     return (<div> <HomePage /> </div>);
 }
 
