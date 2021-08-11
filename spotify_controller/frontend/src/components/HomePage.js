@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { PartyJoinPage } from "./PartyJoinPage";
 import { CreatePartyPage } from "./CreatePartyPage";
 // import CreatePartyPage from "./CreatePartyPage";
+import { Party } from "./Party";
 import {
   BrowserRouter as Router,
   Switch,
@@ -32,6 +33,9 @@ export const HomePage = (props) => {
           <CreatePartyPage />
         </Route>
         {/* <Route path='/'><p>Hey this is the home page.</p></Route> */}
+        <Route path="/party/:partyCode">
+          <Party />
+        </Route>
       </Switch>
     </Router>
   );
