@@ -15,6 +15,6 @@ def generate_unique_code():
 class Party(models.Model):
     code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
     host = models.CharField(max_length=50, unique=True)
-    received_votes = models.IntegerField(null=False, default=0)
+    votes_to_skip = models.IntegerField(null=True, default=0)
     guest_can_pause = models.BooleanField(null=False, default=False)
     created_at = models.DateTimeField(auto_now_add=True)

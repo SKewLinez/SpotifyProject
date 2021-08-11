@@ -13,6 +13,12 @@ class PartyView(generics.ListAPIView):
     queryset = Party.objects.all()
     serializer_class = PartySerialiser
 
+   # def delete(self, request, *args, **kwargs):
+        
+        # queryset.delete()
+        # return Response("Question deleted", status=status.HTTP_204_NO_CONTENT)
+    # Party.objects.filter(id=0).delete()
+
 class CreatePartyView(APIView):
     serializer_class = CreatePartySerialiser
     http_method_names = ['post']
@@ -24,16 +30,17 @@ class CreatePartyView(APIView):
         serialiser = self.serializer_class(data=request.data)
         if serialiser.is_valid():
             guest_can_pause = serialiser.data.get('guest_can_pause')
-            received_votes = serialiser.data.get('received_votes')
-            host = self.request.session.session_key
-            queryset = Party.objects.filter(host=host)
+            votes_to_skip = serialiser.data.get('votes_to_skip')
+            host = self.request.session.session_key       
+            queryset = Party.objects.filter(host=host)         
             if queryset.exists():
                 party = queryset[0]
                 party.guest_can_pause = guest_can_pause
-                party.save(update_fields = ['guest_can_pause', 'received_votes'])
+                party.votes_to_skip = votes_to_skip
+                party.save(update_fields = ['guest_can_pause', 'votes_to_skip'])
                 return Response(PartySerialiser(party).data, status=status.HTTP_200_OK)
             else:
-                party = Party(host=host, guest_can_pause=guest_can_pause, received_votes=received_votes)
+                party = Party(host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
                 party.save()
                 return Response(PartySerialiser(party).data, status=status.HTTP_201_CREATED)
 
