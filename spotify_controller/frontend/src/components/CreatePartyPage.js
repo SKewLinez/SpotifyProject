@@ -17,16 +17,13 @@ export const CreatePartyPage = (props) => {
   const [guestCanPause, setGuestCanPause] = useState(true);
   const [votesToSkip, setVotesToSkip] = useState(2);
 
-  useEffect(() => {
-    // TO DO - after every render
-  });
-
   const handlePartySubmit = async (event) => {
     event.preventDefault();
     let details = {
       guest_can_pause: guestCanPause,
       votes_to_skip: votesToSkip,
     };
+    console.log(details);
     let requestOptions = {
       method: "POST",
       headers: {
@@ -34,76 +31,75 @@ export const CreatePartyPage = (props) => {
       },
       body: JSON.stringify(details),
     };
-    let response = await fetch("/api/create-party", requestOptions);
-    let result = response.json();
-    console.log(result.data);
-
-    return (
-      <Grid container spacing={1}>
-        <Grid item xs={12} align="center">
-          <Typography component="h4" variant="h4">
-            Create a Party
-          </Typography>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <FormControl component="fieldset">
-            <FormHelperText>
-              <div align="center">Guest Control of Playback State</div>
-            </FormHelperText>
-            <RadioGroup
-              row
-              defaultValue="true"
-              onChange={() => setGuestCanPause((prevCheck) => !prevCheck)}
-            >
-              <FormControlLabel
-                value="true"
-                control={<Radio color="primary" />}
-                label="Play/Pause"
-                labelPlacement="bottom"
-              />
-              <FormControlLabel
-                value="false"
-                control={<Radio color="secondary" />}
-                label="No Control"
-                labelPlacement="bottom"
-              />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <FormControl>
-            <TextField
-              required={true}
-              type="number"
-              onChange={(event) => setVotesToSkip(event.target.value)}
-              defaultValue={this.votesToSkip}
-              inputProps={{
-                min: 1,
-                style: { textAlign: "center" },
-              }}
-            />
-            <FormHelperText>
-              <div align="center">Votes Required To Skip Song</div>
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handlePartySubmit}
-          >
-            Create a Party
-          </Button>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Button color="secondary" variant="contained" to="/" component={Link}>
-            Back
-          </Button>
-        </Grid>
-      </Grid>
-    );
+    // let response = await fetch("/api/create-party", requestOptions);
+    // let result = response.json();
+    // console.log(result);
+    await fetch("/api/create-party", requestOptions)
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   };
+
+  return (
+    <Grid container spacing={1}>
+      <Grid item xs={12} align="center">
+        <Typography component="h4" variant="h4">
+          Create a Party
+        </Typography>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <FormControl component="fieldset">
+          <FormHelperText>
+            <div align="center">Guest Control of Playback State</div>
+          </FormHelperText>
+          <RadioGroup
+            row
+            defaultValue="true"
+            onChange={() => setGuestCanPause((prevCheck) => !prevCheck)}
+          >
+            <FormControlLabel
+              value="true"
+              control={<Radio color="primary" />}
+              label="Play/Pause"
+              labelPlacement="bottom"
+            />
+            <FormControlLabel
+              value="false"
+              control={<Radio color="secondary" />}
+              label="No Control"
+              labelPlacement="bottom"
+            />
+          </RadioGroup>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <FormControl>
+          <TextField
+            required={true}
+            type="number"
+            onChange={(event) => setVotesToSkip(event.target.value)}
+            defaultValue={votesToSkip}
+            inputProps={{
+              min: 1,
+              style: { textAlign: "center" },
+            }}
+          />
+          <FormHelperText>
+            <div align="center">Votes Required To Skip Song</div>
+          </FormHelperText>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <Button color="primary" variant="contained" onClick={handlePartySubmit}>
+          Create a Party
+        </Button>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <Button color="secondary" variant="contained" to="/" component={Link}>
+          Back
+        </Button>
+      </Grid>
+    </Grid>
+  );
 };
 
 // class CreatePartyPage extends Component {

@@ -36,6 +36,7 @@ class CreatePartyView(APIView):
             if queryset.exists():
                 party = queryset[0]
                 party.guest_can_pause = guest_can_pause
+                party.votes_to_skip = votes_to_skip
                 party.save(update_fields = ['guest_can_pause', 'votes_to_skip'])
                 return Response(PartySerialiser(party).data, status=status.HTTP_200_OK)
             else:
