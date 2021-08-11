@@ -10,6 +10,7 @@ import {
   Route,
   Link,
   Redirect,
+  useParams,
 } from "react-router-dom";
 
 // export default class HomePage extends Component {
@@ -17,6 +18,7 @@ import {
 //     super(props);
 //   }
 export const HomePage = (props) => {
+  //let { partyCode } = useParams();
   // render() {
   return (
     <Router>
