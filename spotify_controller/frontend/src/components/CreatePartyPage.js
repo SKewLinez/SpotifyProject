@@ -11,11 +11,12 @@ import {
   RadioGroup,
   FormControlLabel,
 } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 export const CreatePartyPage = (props) => {
   const [guestCanPause, setGuestCanPause] = useState(true);
   const [votesToSkip, setVotesToSkip] = useState(2);
+  let history = useHistory(); // do not put this inside handlePartySubmit - Invalid hook call
 
   const handlePartySubmit = async (event) => {
     event.preventDefault();
@@ -36,7 +37,8 @@ export const CreatePartyPage = (props) => {
     // console.log(result);
     await fetch("/api/create-party", requestOptions)
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      //.then((data) => console.log(data));
+      .then((data) => history.push("/party/" + data.code));
   };
 
   return (
