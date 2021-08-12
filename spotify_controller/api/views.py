@@ -35,6 +35,26 @@ class GetParty(APIView):
         return Response({'Bad Request': 'Code parameters not found in request.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class JoinParty(APIView):
+    lookup_url_kwarg = 'code'
+
+    def post(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        code = request.data.get(self.lookup_url_kwarg)
+        # code = request.data.get('code', None)
+        if code != None:
+            party_result = Party.objects.filter(code=code)
+            if len(party_result) > 0:
+                party = party_result[0]
+                # self.request.session['party_code'] = party TOFIX: not a JSON serialisable
+                # self.request.session['code'] = party
+                self.request.session['code'] = PartySerialiser(party).data
+                return Response({'message:' 'Joined Party.'}, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Invalid Party Code.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Bad Request': 'Invalid post data, failed to find a code key'}, status=status.HTTP_400_BAD_REQUEST)
+
 class CreatePartyView(APIView):
     serializer_class = CreatePartySerialiser
     http_method_names = ['post']

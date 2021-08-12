@@ -22,7 +22,7 @@ import CreatePartyPage from "./CreatePartyPage";
 //     }
 // }
 export const App = (props) => {
-    return (<div> <HomePage /> </div>);
+    return (<div className="center"> <HomePage /> </div>);
 }
 
 const appDiv = document.getElementById("app");
