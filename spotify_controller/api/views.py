@@ -1,5 +1,6 @@
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import subclasses
+from django.http.response import JsonResponse
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
 from .models import Party
@@ -8,16 +9,20 @@ from rest_framework import generics, status
 from .serialisers import CreatePartySerialiser, PartySerialiser
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.http import JsonResponse
 
 # Create your views here. - endpoints
+
+
 class PartyView(generics.ListAPIView):
     queryset = Party.objects.all()
     serializer_class = PartySerialiser
 
-   # def delete(self, request, *args, **kwargs):     
+   # def delete(self, request, *args, **kwargs):
         # queryset.delete()
         # return Response("Question deleted", status=status.HTTP_204_NO_CONTENT)
     # Party.objects.filter(id=0).delete()
+
 
 class GetParty(APIView):
     serializer_class = PartySerialiser
@@ -50,10 +55,12 @@ class JoinParty(APIView):
                 party = party_result[0]
                 # self.request.session['party_code'] = party TOFIX: not a JSON serialisable
                 # self.request.session['code'] = party
-                self.request.session['code'] = PartySerialiser(party).data
+                # self.request.session['party_code'] = PartySerialiser(party).data # this gets the serilaised json object party with all attributes
+                self.request.session['party_code'] = PartySerialiser(party).data['code']
                 return Response({'message:' 'Joined Party.'}, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Invalid Party Code.'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'Bad Request': 'Invalid post data, failed to find a code key'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CreatePartyView(APIView):
     serializer_class = CreatePartySerialiser
@@ -67,17 +74,31 @@ class CreatePartyView(APIView):
         if serialiser.is_valid():
             guest_can_pause = serialiser.data.get('guest_can_pause')
             votes_to_skip = serialiser.data.get('votes_to_skip')
-            host = self.request.session.session_key       
-            queryset = Party.objects.filter(host=host)         
+            host = self.request.session.session_key
+            queryset = Party.objects.filter(host=host)
             if queryset.exists():
                 party = queryset[0]
                 party.guest_can_pause = guest_can_pause
                 party.votes_to_skip = votes_to_skip
-                party.save(update_fields = ['guest_can_pause', 'votes_to_skip'])
+                party.save(update_fields=['guest_can_pause', 'votes_to_skip'])
                 return Response(PartySerialiser(party).data, status=status.HTTP_200_OK)
             else:
-                party = Party(host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
+                party = Party(
+                    host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
                 party.save()
                 return Response(PartySerialiser(party).data, status=status.HTTP_201_CREATED)
 
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserInParty(APIView):
+    def get(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        
+        data = {
+            'code': self.request.session.get('party_code')
+        }
+        return JsonResponse(data, status=status.HTTP_200_OK)
+
+
