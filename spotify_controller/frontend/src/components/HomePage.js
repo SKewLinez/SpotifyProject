@@ -52,30 +52,35 @@ function renderHomePage() {
   );
 };
 //   }
-export const HomePage = (props) => {
+export const HomePage = () => {
   //let { partyCode } = useParams();
   // render() {
   const [partyCode, setPartyCode] = useState(null);
 
   useEffect(() => {
     const getUserInParty = async () => {
-      fetch("/api/user-in-party")
+      await fetch("/api/user-in-party")
       .then((response) => response.json())
       .then((data) => {
-        console.log("data:" +  JSON.stringify(data));
+        console.log("data:" +  JSON.stringify(data)); // leave -> null
         setPartyCode(data.code);
+        console.log("set props party code1:" + partyCode);  // updated 2nd - async 
       });
     };
     getUserInParty();
+    console.log("set props party code2:" + partyCode);  // updated 1st
   }, []);
 
+  const clearPartyCode = () => {
+    setPartyCode(null);
+  }
 
   return (
     <Router>
       <Switch>
         {/* check if the party already exists before rendering */}
         <Route exact path="/" render={() => {
-          return partyCode ? (<Redirect to={`/party/${partyCode}`}></Redirect>) : (renderHomePage())
+          return partyCode ? (<Redirect to={`/party/${partyCode}`}></Redirect>) : (renderHomePage());
         }}>
         </Route>
         {/* <Route path="/join" component={PartyJoinPage}></Route> */}
@@ -87,8 +92,10 @@ export const HomePage = (props) => {
           <CreatePartyPage />
         </Route>
         {/* <Route path='/'><p>Hey this is the home page.</p></Route> */}
-        <Route path="/party/:partyCode">
-          <Party />
+        <Route path="/party/:partyCode" render={(props) => {
+          //return <Party {...props} leavePartyCallback={clearPartyCode}></Party>;
+         return <Party partyCode={partyCode} leavePartyCallback={clearPartyCode}></Party>;
+        }}>
         </Route>
       </Switch>
     </Router>

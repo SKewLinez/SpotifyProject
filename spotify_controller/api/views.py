@@ -12,8 +12,6 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 
 # Create your views here. - endpoints
-
-
 class PartyView(generics.ListAPIView):
     queryset = Party.objects.all()
     serializer_class = PartySerialiser
@@ -101,4 +99,15 @@ class UserInParty(APIView):
         }
         return JsonResponse(data, status=status.HTTP_200_OK)
 
-
+class LeaveParty(APIView):
+    def post(self, request, format=None):
+        if 'party_code' in self.request.session:
+            self.request.session.pop('party_code')
+            host_id = self.request.session.session_key
+            party_result = Party.objects.filter(host=host_id)
+            if len(party_result) > 0:
+                party = party_result[0]
+                party.delete()
+            
+        # TODO: different response when the user is not in the party
+        return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
