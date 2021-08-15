@@ -1,13 +1,23 @@
 from rest_framework import serializers
 from .models import Party
 
+
 class PartySerialiser(serializers.ModelSerializer):
     class Meta:
         model = Party
-        fields = ('id', 'code', 'host', 'votes_to_skip', 'guest_can_pause', 'created_at')
+        fields = ('id', 'code', 'host', 'votes_to_skip',
+                  'guest_can_pause', 'created_at')
+
 
 class CreatePartySerialiser(serializers.ModelSerializer):
     class Meta:
         model = Party
         # fields = ('guest_can_pause', 'received_votes') -- deprecated
         exclude = ('id', 'code', 'host', 'created_at')
+
+
+class UpdatePartySerialiser(serializers.ModelSerializer):
+    code = serializers.CharField(validators=[])
+    class Meta:
+        model = Party
+        exclude = ('id', 'host', 'created_at') 
