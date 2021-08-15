@@ -1,15 +1,27 @@
-import React, { useState, useEffect, useCallback} from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import { Grid, Button, Typography, TextField} from "@material-ui/core";
+import { Grid, Button, Typography, TextField } from "@material-ui/core";
 import { CreatePartyPage } from "./CreatePartyPage";
 import { render } from "react-dom";
 // import { Link } from "react-router-dom"
 
+const PartyContext = React.createContext();
+// It returns an object with 2 values:
+// { Provider, Consumer }
+
 export const Party = ({ leavePartyCallback }) => {
-  const [guestCanPause, setGuestCanPause] = useState(false);
-  const [votesToSkip, setVotesToSkip] = useState(2);
-  const [isHost, setIsHost] = useState(false);
+  // const [guestCanPause, setGuestCanPause] = useState(false);
+  // const [votesToSkip, setVotesToSkip] = useState(2);
+  // const [isHost, setIsHost] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  const [partyDetails, setPartyDetails] = useState({
+    partyCode: null,
+    votesToSkip: 2,
+    guestCanPause: true,
+    isHost: false,
+  });
+
   let { partyCode } = useParams();
   //const [partyCodeParam, setPartyCodeData] = useState(pe);
   let history = useHistory();
@@ -32,9 +44,20 @@ export const Party = ({ leavePartyCallback }) => {
           return response.json();
         })
         .then((data) => {
-          setVotesToSkip(data.votes_to_skip),
-          setGuestCanPause(data.guest_can_pause),
-          setIsHost(data.is_host);
+          setPartyDetails((prevState) => ({
+            ...prevState,
+            // major: {
+            //   ...prevState.major,
+            //   name: "xxx",
+            // },
+            partyCode: data.code,
+            votesToSkip: data.votes_to_skip,
+            guestCanPause: data.guest_can_pause,
+            isHost: data.is_host,
+          }));
+          // setVotesToSkip(data.votes_to_skip),
+          // setGuestCanPause(data.guest_can_pause),
+          // setIsHost(data.is_host);
         });
     };
     partyDetails();
@@ -52,7 +75,6 @@ export const Party = ({ leavePartyCallback }) => {
       history.push("/");
     });
   };
-  
 
   function renderSettingsButton() {
     return (
@@ -60,7 +82,7 @@ export const Party = ({ leavePartyCallback }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setShowSettings(showSettings => !showSettings)}
+          onClick={() => setShowSettings((showSettings) => !showSettings)}
         >
           Settings
         </Button>
@@ -70,55 +92,59 @@ export const Party = ({ leavePartyCallback }) => {
 
   function renderSettings() {
     return (
-      <Grid container spacing={1}>
-        <Grid item xs={12} align="center">
-          <CreatePartyPage
-            update={true}
-            votesToSkip={votesToSkip}
-            guestCanPause={guestCanPause}
-            partyCode={partyCode}
-            updateCallback={() => {}}
-          ></CreatePartyPage>
+      <PartyContext.Provider value={partyDetails}>
+        <Grid container spacing={1}>
+          <Grid item xs={12} align="center">
+
+            {/* TODO: use context to pass multiple values including update instructions. */}
+            <CreatePartyPage
+              update={true}
+              votesToSkip={votesToSkip}
+              guestCanPause={guestCanPause}
+              partyCode={partyCode}
+              updateCallback={() => {}}
+            ></CreatePartyPage>
+          </Grid>
+          <Grid item xs={12} align="center">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setShowSettings((showSettings) => !showSettings)}
+            >
+              Close
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12} align="center">
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setShowSettings(showSettings => !showSettings)}
-          >
-            Close
-          </Button>
-        </Grid>
-      </Grid>
+      </PartyContext.Provider>
     );
   }
 
-  if (showSettings == true) {
+  if (showSettings) {
     return renderSettings();
   } else {
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
-            Code: {partyCode}
+            Code: {partyDetails.partyCode}
           </Typography>
         </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
-            Votes: {votesToSkip}
+            Votes: {partyDetails.votesToSkip}
           </Typography>
         </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
-            Guest Can Pause: {guestCanPause.toString()}
+            Guest Can Pause: {partyDetails.guestCanPause.toString()}
           </Typography>
         </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
-            Host: {isHost.toString()}
+            Host: {partyDetails.isHost.toString()}
           </Typography>
         </Grid>
-        {isHost ? renderSettingsButton() : null}
+        {partyDetails.isHost ? renderSettingsButton() : null}
         <Grid item xs={12} align="center">
           <Button
             variant="contained"

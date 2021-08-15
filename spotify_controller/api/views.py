@@ -27,7 +27,7 @@ class GetParty(APIView):
         code = request.GET.get(self.lookup_url_kwarg)
         if code != None:
             party = Party.objects.filter(code=code)
-            if len(party) > 0:
+            if party.exists():
                 data = PartySerialiser(party[0]).data
                 data['is_host'] = self.request.session.session_key == party[0].host
                 return Response(data, status=status.HTTP_200_OK)
@@ -46,7 +46,7 @@ class JoinParty(APIView):
 
         if code != None:
             party_result = Party.objects.filter(code=code)
-            if len(party_result) > 0:
+            if party_result.exists():
                 party = party_result[0]
                 # self.request.session['party_code'] = party TOFIX: not a JSON serialisable
                 # self.request.session['code'] = party
@@ -102,7 +102,7 @@ class LeaveParty(APIView):
             self.request.session.pop('party_code')
             host_id = self.request.session.session_key
             party_result = Party.objects.filter(host=host_id)
-            if len(party_result) > 0:
+            if party_result.exists():
                 party = party_result[0]
                 party.delete()
 
