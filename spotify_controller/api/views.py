@@ -6,20 +6,17 @@ from rest_framework.serializers import Serializer
 from .models import Party
 from django.shortcuts import render
 from rest_framework import generics, status
-from .serialisers import CreatePartySerialiser, PartySerialiser
+from .serialisers import CreatePartySerialiser, PartySerialiser, UpdatePartySerialiser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 
 # Create your views here. - endpoints
+
+
 class PartyView(generics.ListAPIView):
     queryset = Party.objects.all()
     serializer_class = PartySerialiser
-
-   # def delete(self, request, *args, **kwargs):
-        # queryset.delete()
-        # return Response("Question deleted", status=status.HTTP_204_NO_CONTENT)
-    # Party.objects.filter(id=0).delete()
 
 
 class GetParty(APIView):
@@ -46,7 +43,7 @@ class JoinParty(APIView):
             self.request.session.create()
 
         code = request.data.get(self.lookup_url_kwarg)
-        # code = request.data.get('code', None)
+
         if code != None:
             party_result = Party.objects.filter(code=code)
             if len(party_result) > 0:
@@ -60,7 +57,7 @@ class JoinParty(APIView):
         return Response({'Bad Request': 'Invalid post data, failed to find a code key'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreatePartyView(APIView):
+class CreateParty(APIView):
     serializer_class = CreatePartySerialiser
     http_method_names = ['post']
 
@@ -81,8 +78,7 @@ class CreatePartyView(APIView):
                 party.save(update_fields=['guest_can_pause', 'votes_to_skip'])
                 return Response(PartySerialiser(party).data, status=status.HTTP_200_OK)
             else:
-                party = Party(
-                    host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
+                party = Party(host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
                 party.save()
                 return Response(PartySerialiser(party).data, status=status.HTTP_201_CREATED)
 
@@ -93,11 +89,12 @@ class UserInParty(APIView):
     def get(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-        
+
         data = {
             'code': self.request.session.get('party_code')
         }
         return JsonResponse(data, status=status.HTTP_200_OK)
+
 
 class LeaveParty(APIView):
     def post(self, request, format=None):
@@ -108,6 +105,41 @@ class LeaveParty(APIView):
             if len(party_result) > 0:
                 party = party_result[0]
                 party.delete()
-            
+
         # TODO: different response when the user is not in the party
         return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
+
+
+# update the party if the user is the host
+class UpdateParty(APIView):
+    serializer_class = UpdatePartySerialiser
+
+    def patch(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        serialiser = self.serializer_class(data=request.data)
+        
+        if serialiser.is_valid():
+            guest_can_pause = serialiser.data.get('guest_can_pause')
+            votes_to_skip = serialiser.data.get('votes_to_skip')
+            code = serialiser.data.get('code')
+
+            queryset = Party.objects.filter(code=code)
+            if not queryset.exists():
+                return Response({'Message': 'Party Not Found'}, status=status.HTTP_404_NOT_FOUND)
+
+            party = queryset[0]
+            user_id = self.request.session.session_key
+            if party.host != user_id:
+                return Response({'Message': 'You are not the host of this party!'}, status=status.HTTP_403_FORBIDDEN)
+
+            party.guest_can_pause = guest_can_pause
+            party.votes_to_skip = votes_to_skip
+            party.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+            return Response(PartySerialiser(party).data, status=status.HTTP_200_OK)
+
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+

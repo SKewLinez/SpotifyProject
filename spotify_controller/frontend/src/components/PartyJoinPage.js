@@ -27,8 +27,8 @@ export const PartyJoinPage = (props) => {
     //console.log(partyCode);
     fetch ('/api/join-party', requestOptions)
     .then((response) => {
-      //console.log(response);
       if (response.ok) {
+
         history.push(`/party/${partyCode}`)
       } else {
         setError("Party not found.")
@@ -60,7 +60,7 @@ export const PartyJoinPage = (props) => {
         ></TextField>
       </Grid>
       <Grid item xs={12} align="center">
-        <Button variant="contained" color="primary" onClick={handlePartyEnter}>
+        <Button variant="contained" color="primary" onClick={handlePartyEnter} partyCode={partyCode}>
           Enter a Party
         </Button>
       </Grid>
